@@ -1,8 +1,14 @@
+// Import Flutter widgets
 import 'package:flutter/material.dart';
+// Import sample data
 import '../data/mock_data.dart';
+// Import data models
 import '../models/playlist.dart';
+// Import detail screen
 import 'playlist_detail_screen.dart';
 
+// WHAT IT DOES: This is the library screen (third tab) that shows user's saved music
+// Has 3 tabs: Playlists, Albums, Artists
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
 
@@ -10,16 +16,26 @@ class LibraryScreen extends StatefulWidget {
   State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
+// TERM: with SingleTickerProviderStateMixin - Provides animation support for tabs
+// WHAT IT DOES: Required for TabController to animate tab transitions smoothly
 class _LibraryScreenState extends State<LibraryScreen>
     with SingleTickerProviderStateMixin {
+  // TERM: late - Variable will be initialized later (before being used)
+  // TERM: TabController - Controls which tab is active and handles tab switching
   late TabController _tabController;
 
+  // TERM: initState() - Called once when widget is created (like a constructor)
+  // WHAT IT DOES: Sets up the tab controller when screen loads
   @override
   void initState() {
     super.initState();
+    // Create tab controller with 3 tabs
+    // TERM: vsync - Synchronizes animation with screen refresh rate for smooth transitions
     _tabController = TabController(length: 3, vsync: this);
   }
 
+  // TERM: dispose() - Cleanup method called when widget is removed
+  // WHAT IT DOES: Prevents memory leaks by cleaning up the tab controller
   @override
   void dispose() {
     _tabController.dispose();

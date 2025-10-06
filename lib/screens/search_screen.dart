@@ -1,8 +1,13 @@
+// Import Flutter widgets
 import 'package:flutter/material.dart';
+// Import sample data
 import '../data/mock_data.dart';
+// Import data models
 import '../models/song.dart';
 import '../models/playlist.dart';
 
+// WHAT IT DOES: This is the search screen (second tab) where users can search for songs
+// TERM: StatefulWidget - Can change over time (search results update as user types)
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -10,28 +15,47 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
+// This class holds the changing data (state) for the search screen
 class _SearchScreenState extends State<SearchScreen> {
+  // TERM: TextEditingController - Controls and monitors text input in a text field
+  // WHAT IT DOES: Tracks what the user types in the search box
   final TextEditingController _searchController = TextEditingController();
+
+  // WHAT IT DOES: Stores the list of songs that match the search
   List<Song> _searchResults = [];
+
+  // WHAT IT DOES: Tracks whether user is currently searching (typed something)
   bool _isSearching = false;
 
+  // TERM: dispose() - Cleanup method called when widget is removed from the widget tree
+  // WHAT IT DOES: Prevents memory leaks by cleaning up the controller
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchController.dispose();  // Free up memory used by the controller
     super.dispose();
   }
 
+  // WHAT IT DOES: Searches through all songs and finds matches
+  // TERM: void - This function doesn't return anything
   void _performSearch(String query) {
+    // TERM: setState() - Tells Flutter to rebuild the UI with new data
     setState(() {
+      // TERM: isNotEmpty - Returns true if string has at least one character
       _isSearching = query.isNotEmpty;
+
       if (query.isEmpty) {
+        // If search box is empty, clear results
         _searchResults = [];
       } else {
+        // TERM: .where() - Filters a list based on a condition
+        // TERM: .toLowerCase() - Converts text to lowercase for case-insensitive search
+        // TERM: .contains() - Checks if string contains another string
+        // WHAT IT DOES: Find songs where title, artist, OR album contains the search text
         _searchResults = MockData.songs.where((song) {
           return song.title.toLowerCase().contains(query.toLowerCase()) ||
               song.artist.toLowerCase().contains(query.toLowerCase()) ||
               song.album.toLowerCase().contains(query.toLowerCase());
-        }).toList();
+        }).toList();  // TERM: .toList() - Converts filtered results back to a list
       }
     });
   }
