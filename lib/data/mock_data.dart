@@ -11,6 +11,7 @@ class MockData {
       album: 'After Hours',
       coverUrl: 'https://picsum.photos/seed/1/400',
       duration: const Duration(minutes: 3, seconds: 20),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     ),
     Song(
       id: '2',
@@ -19,6 +20,7 @@ class MockData {
       album: 'Future Nostalgia',
       coverUrl: 'https://picsum.photos/seed/2/400',
       duration: const Duration(minutes: 3, seconds: 23),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     ),
     Song(
       id: '3',
@@ -27,6 +29,7 @@ class MockData {
       album: 'After Hours',
       coverUrl: 'https://picsum.photos/seed/3/400',
       duration: const Duration(minutes: 3, seconds: 35),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     ),
     Song(
       id: '4',
@@ -35,6 +38,7 @@ class MockData {
       album: 'Justice',
       coverUrl: 'https://picsum.photos/seed/4/400',
       duration: const Duration(minutes: 3, seconds: 18),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     ),
     Song(
       id: '5',
@@ -43,6 +47,7 @@ class MockData {
       album: 'SOUR',
       coverUrl: 'https://picsum.photos/seed/5/400',
       duration: const Duration(minutes: 2, seconds: 58),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
     ),
     Song(
       id: '6',
@@ -51,6 +56,7 @@ class MockData {
       album: 'Stay',
       coverUrl: 'https://picsum.photos/seed/6/400',
       duration: const Duration(minutes: 2, seconds: 21),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
     ),
     Song(
       id: '7',
@@ -59,6 +65,7 @@ class MockData {
       album: 'Montero',
       coverUrl: 'https://picsum.photos/seed/7/400',
       duration: const Duration(minutes: 2, seconds: 17),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
     ),
     Song(
       id: '8',
@@ -67,6 +74,7 @@ class MockData {
       album: 'Planet Her',
       coverUrl: 'https://picsum.photos/seed/8/400',
       duration: const Duration(minutes: 3, seconds: 28),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
     ),
   ];
 

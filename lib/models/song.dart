@@ -5,6 +5,7 @@ class Song {
   final String album;
   final String coverUrl;
   final Duration duration;
+  final String audioUrl;
 
   Song({
     required this.id,
@@ -13,5 +14,6 @@ class Song {
     required this.album,
     required this.coverUrl,
     required this.duration,
+    this.audioUrl = '',
   });
 }

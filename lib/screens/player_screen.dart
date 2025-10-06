@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import '../models/song.dart';
+import '../services/audio_player_service.dart';
 
 class PlayerScreen extends StatefulWidget {
   final Song song;
@@ -11,10 +13,16 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  bool _isPlaying = true;
+  final AudioPlayerService _audioService = AudioPlayerService();
   bool _isShuffle = false;
-  bool _isRepeat = false;
-  double _currentPosition = 0.0;
+  LoopMode _loopMode = LoopMode.off;
+
+  @override
+  void initState() {
+    super.initState();
+    // Play the song when screen opens
+    _audioService.playSong(widget.song);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,36 +171,68 @@ class _PlayerScreenState extends State<PlayerScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 3,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-            ),
-            child: Slider(
-              value: _currentPosition,
-              max: widget.song.duration.inSeconds.toDouble(),
-              activeColor: Colors.white,
-              inactiveColor: Colors.grey[700],
-              onChanged: (value) {
-                setState(() => _currentPosition = value);
-              },
-            ),
+          StreamBuilder<Duration>(
+            stream: _audioService.positionStream,
+            builder: (context, posSnapshot) {
+              return StreamBuilder<Duration?>(
+                stream: _audioService.durationStream,
+                builder: (context, durSnapshot) {
+                  final position = posSnapshot.data ?? Duration.zero;
+                  final duration =
+                      durSnapshot.data ?? widget.song.duration;
+
+                  return SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 3,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 6),
+                      overlayShape:
+                          const RoundSliderOverlayShape(overlayRadius: 14),
+                    ),
+                    child: Slider(
+                      value: position.inMilliseconds.toDouble(),
+                      max: duration.inMilliseconds.toDouble(),
+                      activeColor: Colors.white,
+                      inactiveColor: Colors.grey[700],
+                      onChanged: (value) {
+                        _audioService.seek(Duration(milliseconds: value.toInt()));
+                      },
+                    ),
+                  );
+                },
+              );
+            },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _formatDuration(Duration(seconds: _currentPosition.toInt())),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                ),
-                Text(
-                  _formatDuration(widget.song.duration),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                ),
-              ],
+            child: StreamBuilder<Duration>(
+              stream: _audioService.positionStream,
+              builder: (context, posSnapshot) {
+                return StreamBuilder<Duration?>(
+                  stream: _audioService.durationStream,
+                  builder: (context, durSnapshot) {
+                    final position = posSnapshot.data ?? Duration.zero;
+                    final duration =
+                        durSnapshot.data ?? widget.song.duration;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatDuration(position),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[400]),
+                        ),
+                        Text(
+                          _formatDuration(duration),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[400]),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -209,47 +249,65 @@ class _PlayerScreenState extends State<PlayerScreen> {
           IconButton(
             icon: Icon(
               _isShuffle ? Icons.shuffle_on_outlined : Icons.shuffle,
-              color: _isShuffle ? Theme.of(context).colorScheme.primary : Colors.white,
+              color: _isShuffle
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.white,
             ),
             iconSize: 28,
             onPressed: () {
               setState(() => _isShuffle = !_isShuffle);
+              _audioService.setShuffleMode(_isShuffle);
             },
           ),
           IconButton(
             icon: const Icon(Icons.skip_previous),
             iconSize: 40,
-            onPressed: () {},
+            onPressed: _audioService.skipPrevious,
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(
-                _isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.black,
-              ),
-              iconSize: 40,
-              onPressed: () {
-                setState(() => _isPlaying = !_isPlaying);
-              },
-            ),
+          StreamBuilder<bool>(
+            stream: _audioService.playingStream,
+            builder: (context, snapshot) {
+              final isPlaying = snapshot.data ?? false;
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.black,
+                  ),
+                  iconSize: 40,
+                  onPressed: _audioService.togglePlayPause,
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.skip_next),
             iconSize: 40,
-            onPressed: () {},
+            onPressed: _audioService.skipNext,
           ),
           IconButton(
             icon: Icon(
-              _isRepeat ? Icons.repeat_one : Icons.repeat,
-              color: _isRepeat ? Theme.of(context).colorScheme.primary : Colors.white,
+              _loopMode == LoopMode.one
+                  ? Icons.repeat_one
+                  : Icons.repeat,
+              color: _loopMode != LoopMode.off
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.white,
             ),
             iconSize: 28,
             onPressed: () {
-              setState(() => _isRepeat = !_isRepeat);
+              setState(() {
+                _loopMode = _loopMode == LoopMode.off
+                    ? LoopMode.all
+                    : _loopMode == LoopMode.all
+                        ? LoopMode.one
+                        : LoopMode.off;
+              });
+              _audioService.setLoopMode(_loopMode);
             },
           ),
         ],
